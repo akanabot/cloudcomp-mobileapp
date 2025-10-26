@@ -1,35 +1,20 @@
 version: "3.8"
 
 services:
- android-builder:
-    build:
-      context: .
-      dockerfile: dockerfile.txt # Sesuaikan nama file Dockerfile Anda
-    container_name: appmobile1  # <-- UBAH NAMA INI
-    working_dir: /workspace
-    volumes:
-      - .:/workspace
-    command: tail -f /dev/null # Perintah ini agar container tetap hidup
-    restart: "no"
-
-# Volume 'jenkins_home' tidak diperlukan lagi
-volumes: {}
-    environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
-    restart: unless-stopped
-
   android-builder:
     build:
       context: .
-      dockerfile: dockerfile
-    container_name: android-builder1
+      # Pastikan nama file ini sesuai dengan file Dockerfile Anda
+      dockerfile: dockerfile.txt 
+    # Nama container disesuaikan dengan yang Anda panggil di Jenkinsfile
+    container_name: appmobile1
     working_dir: /workspace
     volumes:
+      # Mount kode dari host Jenkins ke /workspace di container
       - .:/workspace
+    # Perintah ini membuat container tetap menyala agar bisa di-'exec'
     command: tail -f /dev/null
-    depends_on:
-      - jenkins
     restart: "no"
 
-volumes:
-  jenkins_home:
+# Volume jenkins_home dihapus karena servis jenkins sudah dihapus
+volumes: {}
