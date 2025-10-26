@@ -1,38 +1,62 @@
 pipeline {
-    // 1. Tentukan bahwa agent build adalah Dockerfile dari repo ini
-    agent {
-        dockerfile {
-            filename 'dockerfile' // Sesuaikan dengan nama file Anda
-        }
+    agent any
+
+    environment {
+        // Sesuaikan nama container dengan docker-compose.yml
+        CONTAINER_NAME = "appmobile1"
     }
 
     stages {
-        // 2. Checkout SCM (Git)
-        // Jenkins otomatis melakukan checkout kode Anda ke dalam container
         stage('Checkout Code') {
             steps {
-                echo "🔄 Checking out code..."
+                echo "🔄 Checkout source code..."
                 git branch: 'main', url: 'https://github.com/akanabot/cloudcomp-mobileapp.git' [cite: 5]
             }
         }
 
-        // 3. Perbaiki Izin (sekarang dijalankan PADA kode yang di-checkout)
-        stage('Fix Permissions') {
+        stage('Build Docker Images') {
             steps {
-                // Perintah 'sh' ini berjalan DI DALAM container Linux
-                sh 'dos2unix ./gradlew' [cite: 3]
-                sh 'chmod +x ./gradlew'
+                // 'docker-compose build' akan membuat image 'android-builder'
+                bat 'docker-compose build'
             }
         }
 
-        // 4. Build Aplikasi
+        stage('Run Docker Containers') {
+            steps {
+                bat '''
+                docker stop appmobile1 || exit 0 
+                docker rm appmobile1 || exit 0 
+                
+                docker-compose down || exit 0
+                docker-compose up -d
+
+                docker ps
+                ''' [cite: 6, 7, 8]
+            }
+        }
+
+        stage('Verify Builder Container Running') {
+            steps {
+                bat '''
+                ping 127.0.0.1 -n 20 >nul
+                
+                docker ps --filter "name=%CONTAINER_NAME%"
+                
+                docker logs %CONTAINER_NAME% --tail 20
+                ''' [cite: 9, 10]
+            }
+        }
+
         stage('Build Android App') {
             steps {
-                sh './gradlew clean build'
+                bat '''
+                docker exec %CONTAINER_NAME% bash -c "chmod +x ./gradlew && ./gradlew clean build"
+                ''' [cite: 11]
             }
         }
     }
-
+    
+}
     // 5. Kumpulkan hasil build
     post {
         success {
