@@ -1,4 +1,4 @@
-# Gunakan base image Java
+# Gunakan base image Java [cite: 1]
 FROM openjdk:17-jdk-slim
 
 # Install dependencies
@@ -16,18 +16,8 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
     mv cmdline-tools latest && \
     rm cmdline-tools.zip
 
-# Install SDK packages
+# Install SDK packages [cite: 2]
 RUN yes | sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
 # Set working directory
 WORKDIR /app
-
-# Copy project files
-COPY . .
-
-# Fix permission & line ending (Windows-safe)
-RUN dos2unix /app/gradlew && chmod +x /app/gradlew
-
-# ✅ Jangan build di tahap image agar image cepat dibangun
-#    Build dijalankan di Jenkins atau manual dengan docker run
-CMD ["./gradlew", "assembleDebug"]
