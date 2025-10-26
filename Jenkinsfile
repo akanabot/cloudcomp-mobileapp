@@ -54,7 +54,7 @@ pipeline {
         stage('Build Android App') {
             steps {
                 bat '''
-                docker exec appmobile1 bash -c "dos2unix ./gradlew && ./gradlew clean build"
+                docker exec appmobile1 bash -c "/bin/sh ./gradlew clean build"
                 '''
             }
         }
