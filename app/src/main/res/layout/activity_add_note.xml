@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:paddingHorizontal="15dp"
+    android:paddingVertical="16dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    tools:context=".AddNoteActivity">
+
+    <EditText
+        android:id="@+id/etNoteTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Judul"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:inputType="textCapSentences"
+        android:textSize="20sp"
+        android:autofillHints="name" />
+    <EditText
+        android:id="@+id/etNoteContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:hint="Tulis catatan Anda di sini..."
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:autofillHints="none" />
+
+    <Button
+        android:id="@+id/btnSaveNote"
+        android:layout_width="match_parent"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:layout_height="wrap_content"
+        android:text="Simpan Catatan" />
+
+</LinearLayout>
