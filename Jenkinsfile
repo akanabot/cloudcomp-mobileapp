@@ -53,19 +53,16 @@ pipeline {
 
         stage('Build Android App') {
             steps {
-                // --- PERBAIKAN ---
-                // Perintah 'bat' Anda sebelumnya error karena masalah quoting yang rumit
-                // antara shell 'bat' (Windows) dan 'bash' (Linux di container).
+                // --- PERBAIKAN #2 ---
+                // Error sebelumnya adalah "no such file or directory", yang berarti
+                // container tidak dapat menemukan file './gradlew' di direktori kerja default.
                 //
-                // Log build Docker Anda (langkah #11) sudah menunjukkan bahwa
-                // 'dos2unix /app/gradlew' telah dijalankan saat image di-build.
-                // Ini berarti file /app/gradlew di dalam container sudah dalam format Unix
-                // dan executable.
+                // Berdasarkan Dockerfile (dari log history), file proyek
+                // disalin ke '/app' dan 'WORKDIR' diatur ke '/app'.
                 //
-                // Oleh karena itu, kita tidak perlu lagi menggunakan 'tr -d \r\'
-                // yang rumit itu. Kita bisa langsung menjalankan perintah build.
-                // Ini jauh lebih bersih dan menghindari semua error quoting.
-                bat 'docker exec appmobile1 ./gradlew clean build'
+                // Untuk mengatasi error "no such file", kita gunakan path absolut
+                // ke file gradlew di dalam container, yaitu '/app/gradlew'.
+                bat 'docker exec appmobile1 /app/gradlew clean build'
             }
         }
     }
