@@ -1,72 +1,52 @@
 pipeline {
-    agent any
-
-    environment {
-        IMAGE_NAME = "appmobile1"
-        CONTAINER_NAME = "appmobile1"
-        JENKINS_CONTAINER = "new_cloudcomp_jenkins_1"
+    // 1. Tentukan bahwa agent build adalah Dockerfile dari repo ini
+    agent {
+        dockerfile {
+            filename 'dockerfile' // Sesuaikan dengan nama file Anda
+        }
     }
 
     stages {
+        // 2. Checkout SCM (Git)
+        // Jenkins otomatis melakukan checkout kode Anda ke dalam container
         stage('Checkout Code') {
             steps {
-                echo "🔄 Checkout source code dari repo kamu..."
-                git branch: 'main', url: 'https://github.com/akanabot/cloudcomp-mobileapp.git'
+                echo "🔄 Checking out code..."
+                git branch: 'main', url: 'https://github.com/akanabot/cloudcomp-mobileapp.git' [cite: 5]
             }
         }
 
-        stage('Build Docker Images') {
+        // 3. Perbaiki Izin (sekarang dijalankan PADA kode yang di-checkout)
+        stage('Fix Permissions') {
             steps {
-                bat 'docker-compose build'
+                // Perintah 'sh' ini berjalan DI DALAM container Linux
+                sh 'dos2unix ./gradlew' [cite: 3]
+                sh 'chmod +x ./gradlew'
             }
         }
 
-        stage('Run Docker Containers') {
-            steps {
-                bat '''
-                docker stop jenkins 
-                docker rm jenkins 
-                docker stop android-builder 
-                docker rm android-builder 
-
-                docker-compose down || exit 0
-                docker-compose up -d
-
-                docker ps
-                '''
-            }
-        }
-
-        stage('Verify Builder Container Running') {
-            steps {
-            
-                bat '''
- 
-                ping 127.0.0.1 -n 20 >nul
-
-                docker ps --filter "name=appmobile1"
-
-                docker logs appmobile1 --tail 20
-                '''
-            }
-        }
-
+        // 4. Build Aplikasi
         stage('Build Android App') {
             steps {
-                bat '''
-                docker exec appmobile1 bash -c "./gradlew clean build"
-                '''
+                sh './gradlew clean build'
             }
         }
     }
 
+    // 5. Kumpulkan hasil build
     post {
         success {
-            echo 'done'
+            echo '✅ Build Sukses. Mengarsipkan artifact...'
+            // Ambil APK dari workspace container dan simpan di Jenkins
+            archiveArtifacts artifacts: 'app/build/outputs/apk/release/app-release.apk', 
+                             onlyIfSuccessful: true
         }
         failure {
-            echo 'fail'
+            echo '🛑 Build Gagal.'
+        }
+        always {
+            // Bersihkan workspace di dalam container
+            cleanWs()
         }
     }
-
 }
