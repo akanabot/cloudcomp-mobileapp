@@ -1,17 +1,19 @@
 version: "3.8"
 
 services:
-  jenkins:
-    image: new_cloudcomp_jenkins_1
-    container_name: new_cloudcomp_jenkins_1
-    user: root
-    ports:
-      - "8667:8666"
-      - "50001:50000"
+ android-builder:
+    build:
+      context: .
+      dockerfile: dockerfile.txt # Sesuaikan nama file Dockerfile Anda
+    container_name: appmobile1  # <-- UBAH NAMA INI
+    working_dir: /workspace
     volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker  
+      - .:/workspace
+    command: tail -f /dev/null # Perintah ini agar container tetap hidup
+    restart: "no"
+
+# Volume 'jenkins_home' tidak diperlukan lagi
+volumes: {}
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
     restart: unless-stopped
