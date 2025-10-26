@@ -39,7 +39,7 @@ pipeline {
 
         stage('Verify Builder Container Running') {
             steps {
-            
+               
                 bat '''
  
                 ping 127.0.0.1 -n 20 >nul
@@ -54,7 +54,7 @@ pipeline {
         stage('Build Android App') {
             steps {
                 bat '''
-                docker exec appmobile1 bash -c "./gradlew clean build"
+                docker exec appmobile1 bash -c "dos2unix ./gradlew && ./gradlew clean build"
                 '''
             }
         }
@@ -68,5 +68,4 @@ pipeline {
             echo 'fail'
         }
     }
-
 }
