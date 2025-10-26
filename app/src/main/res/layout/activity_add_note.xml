@@ -8,8 +8,8 @@
     android:fitsSystemWindows="true"
     android:paddingHorizontal="15dp"
     android:paddingVertical="16dp"
-    android:paddingLeft="15dp"
-    android:paddingRight="15dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
     tools:context=".AddNoteActivity">
 
     <EditText
