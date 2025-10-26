@@ -39,7 +39,7 @@ pipeline {
 
         stage('Verify Builder Container Running') {
             steps {
-               
+                
                 bat '''
  
                 ping 127.0.0.1 -n 20 >nul
@@ -53,9 +53,19 @@ pipeline {
 
         stage('Build Android App') {
             steps {
-                bat '''
-                docker exec appmobile1 bash -c "tr -d '\r' < ./gradlew | /bin/sh -s -- clean build"
-                '''
+                // --- PERBAIKAN ---
+                // Perintah 'bat' Anda sebelumnya error karena masalah quoting yang rumit
+                // antara shell 'bat' (Windows) dan 'bash' (Linux di container).
+                //
+                // Log build Docker Anda (langkah #11) sudah menunjukkan bahwa
+                // 'dos2unix /app/gradlew' telah dijalankan saat image di-build.
+                // Ini berarti file /app/gradlew di dalam container sudah dalam format Unix
+                // dan executable.
+                //
+                // Oleh karena itu, kita tidak perlu lagi menggunakan 'tr -d \r\'
+                // yang rumit itu. Kita bisa langsung menjalankan perintah build.
+                // Ini jauh lebih bersih dan menghindari semua error quoting.
+                bat 'docker exec appmobile1 ./gradlew clean build'
             }
         }
     }
